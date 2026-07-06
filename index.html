@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeakEase AR — Cuando el miedo apaga la voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14121f;
+  --curtain:#221e35;
+  --curtain-2:#2b2545;
+  --spotlight:#f6b93b;
+  --spotlight-dim: rgba(246,185,59,0.16);
+  --coral:#ef6f53;
+  --sage:#8fb9a8;
+  --paper:#faf6ef;
+  --paper-2:#f1ead9;
+  --paper-ink:#1d1b2e;
+  --muted:#716c86;
+  --muted-light:#a39fc7;
+  --line: rgba(29,27,46,0.12);
+  --line-dark: rgba(255,255,255,0.12);
+  --radius: 14px;
+  --maxw: 1120px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--paper-ink);
+  font-family:'Manrope', sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  margin:0 0 .4em 0;
+  letter-spacing:-0.01em;
+}
+p{margin:0 0 1em 0;}
+a{color:inherit;}
+img,svg{display:block; max-width:100%;}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px;}
+.eyebrow{
+  font-family:'Space Mono', monospace;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  font-size:12.5px;
+  color:var(--coral);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.eyebrow::before{
+  content:"";
+  width:22px; height:1px;
+  background:var(--coral);
+  display:inline-block;
+}
+.section{ padding:110px 0; position:relative; }
+.section.dark{ background:var(--ink); color:var(--paper); }
+.section.curtain{ background:var(--curtain); color:var(--paper); }
+::selection{ background:var(--spotlight); color:var(--ink); }
+
+/* focus visibility */
+a:focus-visible, button:focus-visible{
+  outline:2px solid var(--spotlight);
+  outline-offset:3px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ---------- NAV ---------- */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  backdrop-filter: blur(10px);
+  background: rgba(20,18,31,0.72);
+  border-bottom:1px solid var(--line-dark);
+}
+.navwrap{ display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px; }
+.brand{ display:flex; align-items:center; gap:9px; color:var(--paper); text-decoration:none; font-family:'Space Mono', monospace; font-size:15px; letter-spacing:0.02em; }
+.brand em{ color:var(--spotlight); font-style:normal; }
+.navlinks{ display:flex; gap:26px; }
+.navlinks a{ color:var(--muted-light); text-decoration:none; font-size:14.5px; font-weight:500; transition:color .2s ease; }
+.navlinks a:hover{ color:var(--spotlight); }
+@media (max-width: 720px){ .navlinks{ display:none; } }
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  min-height:100vh;
+  background: radial-gradient(600px circle at var(--mx,50%) var(--my,30%), var(--spotlight-dim), transparent 60%), var(--ink);
+  color:var(--paper);
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(700px circle at var(--mx,50%) var(--my,30%), black, transparent 70%);
+  -webkit-mask-image: radial-gradient(700px circle at var(--mx,50%) var(--my,30%), black, transparent 70%);
+  pointer-events:none;
+}
+.hero-audience{ position:absolute; inset:0; pointer-events:none; opacity:0.5; }
+.hero-inner{ position:relative; z-index:2; width:100%; padding-top:120px; padding-bottom:80px; }
+.hero-kicker{
+  font-family:'Space Mono', monospace; color:var(--spotlight); text-transform:uppercase;
+  letter-spacing:0.16em; font-size:13px; margin-bottom:22px; display:flex; align-items:center; gap:10px;
+}
+.hero-kicker .dot{ width:7px; height:7px; border-radius:50%; background:var(--coral); box-shadow:0 0 0 4px rgba(239,111,83,0.2); }
+.hero h1{ font-size: clamp(2.6rem, 6vw, 5rem); font-weight:600; max-width:16ch; line-height:1.04; color:var(--paper); }
+.hero h1 .accent{ color:var(--spotlight); font-style:italic; font-weight:500; }
+.hero-sub{ max-width:540px; color:var(--muted-light); font-size:1.15rem; margin-top:22px; margin-bottom:36px; }
+.hero-cta{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+.btn{
+  font-family:'Space Mono', monospace; font-size:13.5px; text-transform:uppercase; letter-spacing:0.08em;
+  padding:15px 26px; border-radius:999px; text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+  transition:transform .25s ease, box-shadow .25s ease; border:none; cursor:pointer;
+}
+.btn-primary{ background:var(--spotlight); color:var(--ink); font-weight:700; }
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(246,185,59,0.3); }
+.btn-ghost{ color:var(--paper); border:1px solid var(--line-dark); background:transparent; }
+.btn-ghost:hover{ border-color:var(--spotlight); color:var(--spotlight); }
+
+.hero-stats{
+  margin-top:64px; display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+  border-top:1px solid var(--line-dark); padding-top:28px; max-width:760px;
+}
+.hero-stats div{ border-left:1px solid var(--line-dark); padding-left:16px; }
+.hero-stats div:first-child{ border-left:none; padding-left:0; }
+.hero-stats .num{ font-family:'Fraunces', serif; font-size:1.9rem; color:var(--spotlight); font-weight:600; }
+.hero-stats .lab{ font-size:12.5px; color:var(--muted-light); margin-top:4px; }
+@media (max-width:760px){
+  .hero-stats{ grid-template-columns:repeat(2,1fr); row-gap:24px; }
+  .hero-stats div{ border-left:none; padding-left:0; }
+}
+.scroll-cue{
+  position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  color:var(--muted-light); font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+}
+.scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--spotlight), transparent); animation:scrollpulse 1.8s ease-in-out infinite; }
+@keyframes scrollpulse{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
+
+/* ---------- SHARED SECTION COMPONENTS ---------- */
+.act-tag{
+  font-family:'Space Mono', monospace; font-size:12.5px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--coral); margin-bottom:16px; display:flex; align-items:center; gap:12px;
+}
+.section.dark .act-tag, .section.curtain .act-tag{ color:var(--spotlight); }
+.act-tag .num{
+  width:30px; height:30px; border-radius:50%; border:1px solid currentColor;
+  display:flex; align-items:center; justify-content:center; font-size:11px;
+}
+.section-head{ max-width:640px; margin-bottom:56px; }
+.section-head h2{ font-size:clamp(1.9rem, 3.6vw, 2.8rem); }
+.section-head .lede{ font-size:1.08rem; color:var(--muted); max-width:56ch; }
+.section.dark .section-head .lede, .section.curtain .section-head .lede{ color:var(--muted-light); }
+
+.author-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'Space Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em;
+  color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:6px 14px; margin-bottom:22px;
+}
+.section.dark .author-chip, .section.curtain .author-chip{ color:var(--muted-light); border-color:var(--line-dark); }
+.author-chip::before{ content:"✎"; }
+
+.grid-2{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:start; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+@media (max-width:860px){ .grid-2, .grid-3, .grid-4{ grid-template-columns:1fr; } }
+
+.card{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+  padding:28px; transition: transform .3s ease, box-shadow .3s ease;
+}
+.card:hover{ transform:translateY(-4px); box-shadow:0 16px 40px rgba(29,27,46,0.08); }
+.card h3{ font-size:1.15rem; margin-bottom:10px; }
+.card p{ color:var(--muted); font-size:0.96rem; margin-bottom:0; }
+.card .icon{ margin-bottom:16px; color:var(--coral); }
+
+.section.dark .card, .section.curtain .card{ background:rgba(255,255,255,0.03); border-color:var(--line-dark); }
+.section.dark .card p, .section.curtain .card p{ color:var(--muted-light); }
+
+/* stat spotlight circles */
+.stat-spot{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding:26px 14px; border-radius:50%; aspect-ratio:1/1; justify-content:center;
+  background: radial-gradient(circle at 50% 35%, var(--spotlight-dim), transparent 70%);
+  border:1px dashed rgba(246,185,59,0.4);
+}
+.stat-spot .big{ font-family:'Fraunces', serif; font-size:clamp(1.8rem,4vw,2.6rem); color:var(--spotlight); font-weight:600; }
+.stat-spot .small{ font-size:12.5px; color:var(--muted-light); margin-top:6px; max-width:16ch; }
+
+/* quote cards */
+.quote-card{
+  background:var(--paper-2); border-radius:var(--radius); padding:26px; position:relative;
+  border-left:3px solid var(--coral);
+}
+.quote-card p{ font-family:'Fraunces', serif; font-style:italic; font-size:1.05rem; color:var(--paper-ink); margin-bottom:14px; }
+.quote-card .who{ font-family:'Space Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+
+/* bar chart */
+.bar-row{ margin-bottom:20px; }
+.bar-row .lab{ display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:7px; }
+.bar-row .lab span:last-child{ font-family:'Space Mono', monospace; color:var(--coral); font-weight:700; }
+.bar-track{ height:10px; border-radius:999px; background:var(--line); overflow:hidden; }
+.bar-fill{ height:100%; border-radius:999px; width:0; background:linear-gradient(90deg, var(--coral), var(--spotlight)); transition:width 1.1s cubic-bezier(.2,.7,.2,1); }
+.bar-row.in-view .bar-fill{ width:var(--pct); }
+
+/* donut */
+.donut-wrap{ display:flex; align-items:center; gap:20px; }
+.donut{ width:120px; height:120px; flex-shrink:0; }
+.donut circle{ transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1); }
+.donut circle.fg{ stroke-dashoffset:282.7; }
+.reveal.in-view .donut circle.fg{ stroke-dashoffset: var(--dash-final); }
+
+/* pipeline */
+.pipeline{ display:flex; flex-wrap:wrap; gap:0; counter-reset:step; }
+.pipe-step{
+  flex:1 1 150px; position:relative; padding:22px 18px; border:1px solid var(--line); border-radius:var(--radius);
+  margin:8px; background:var(--paper);
+}
+.pipe-step .icon{ color:var(--coral); margin-bottom:12px; }
+.pipe-step h4{ font-size:0.98rem; margin-bottom:6px; font-family:'Manrope',sans-serif; font-weight:700; }
+.pipe-step p{ font-size:0.85rem; color:var(--muted); margin:0; }
+.pipe-arrow{ display:flex; align-items:center; color:var(--line); }
+@media (max-width:900px){ .pipe-arrow{ display:none; } }
+
+/* team */
+.team-card{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:26px;
+  display:flex; flex-direction:column; gap:14px;
+}
+.team-avatar{
+  width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:'Fraunces',serif; font-weight:600; color:var(--ink); background:var(--spotlight); font-size:1.1rem;
+}
+.team-role{ font-family:'Space Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--coral); }
+
+/* final considerations */
+.final-card{
+  background:rgba(255,255,255,0.04); border:1px solid var(--line-dark); border-radius:var(--radius);
+  padding:28px; display:flex; flex-direction:column; gap:14px; height:100%;
+}
+.final-card p{ color:var(--muted-light); font-size:0.95rem; }
+.final-card .name{ font-family:'Fraunces', serif; color:var(--paper); font-size:1.05rem; }
+
+/* footer */
+.site-footer{ background:var(--ink); color:var(--muted-light); padding:60px 0 34px; }
+.footer-grid{ display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; margin-bottom:40px; }
+.footer-grid h4{ color:var(--paper); font-size:0.95rem; margin-bottom:14px; }
+.footer-refs{ font-size:0.82rem; line-height:1.9; max-width:640px; color:var(--muted-light); }
+.footer-bottom{ border-top:1px solid var(--line-dark); padding-top:24px; font-size:0.82rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+.reveal.in-view{ opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header id="siteNav" class="nav">
+  <div class="wrap navwrap">
+    <a class="brand" href="#top">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 16.5C3 13 5.5 10.5 8 10.5C10 10.5 10.5 12 10.5 13.5C10.5 15 11 16 13 16C15 16 15.5 15 15.5 13.5C15.5 12 16 10.5 18 10.5C20.5 10.5 23 13 23 16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="8" cy="16.5" r="3" stroke="currentColor" stroke-width="1.6"/>
+        <circle cx="18" cy="16.5" r="3" stroke="currentColor" stroke-width="1.6"/>
+      </svg>
+      <span>SpeakEase <em>AR</em></span>
+    </a>
+    <nav class="navlinks">
+      <a href="#problema">El problema</a>
+      <a href="#idea">La idea</a>
+      <a href="#metodo">Método</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#equipo">Equipo</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="top" class="hero">
+  <svg class="hero-audience" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="#0000" stroke="none">
+      <!-- rows of seated silhouette audience -->
+      <g fill="rgba(255,255,255,0.05)">
+        <g id="row1">
+          <circle cx="60" cy="640" r="22"/><rect x="38" y="660" width="44" height="70" rx="12"/>
+          <circle cx="140" cy="650" r="22"/><rect x="118" y="670" width="44" height="70" rx="12"/>
+          <circle cx="220" cy="642" r="22"/><rect x="198" y="662" width="44" height="70" rx="12"/>
+          <circle cx="300" cy="655" r="22"/><rect x="278" y="675" width="44" height="70" rx="12"/>
+          <circle cx="380" cy="645" r="22"/><rect x="358" y="665" width="44" height="70" rx="12"/>
+          <circle cx="460" cy="650" r="22"/><rect x="438" y="670" width="44" height="70" rx="12"/>
+          <circle cx="540" cy="640" r="22"/><rect x="518" y="660" width="44" height="70" rx="12"/>
+          <circle cx="620" cy="648" r="22"/><rect x="598" y="668" width="44" height="70" rx="12"/>
+          <circle cx="700" cy="642" r="22"/><rect x="678" y="662" width="44" height="70" rx="12"/>
+          <circle cx="780" cy="652" r="22"/><rect x="758" y="672" width="44" height="70" rx="12"/>
+          <circle cx="860" cy="644" r="22"/><rect x="838" y="664" width="44" height="70" rx="12"/>
+          <circle cx="940" cy="650" r="22"/><rect x="918" y="670" width="44" height="70" rx="12"/>
+          <circle cx="1020" cy="642" r="22"/><rect x="998" y="662" width="44" height="70" rx="12"/>
+          <circle cx="1100" cy="650" r="22"/><rect x="1078" y="670" width="44" height="70" rx="12"/>
+        </g>
+      </g>
+      <g fill="rgba(255,255,255,0.035)" transform="translate(40,90)">
+        <use href="#row1"/>
+      </g>
+      <g fill="rgba(255,255,255,0.025)" transform="translate(-30,175)">
+        <use href="#row1"/>
+      </g>
+    </g>
+  </svg>
+
+  <div class="wrap hero-inner">
+    <div class="hero-kicker"><span class="dot"></span> Propuesta de investigación · UTP Sede Veraguas</div>
+    <h1>Cuando el miedo<br>apaga la <span class="accent">voz.</span></h1>
+    <p class="hero-sub">SpeakEase AR es una aplicación de realidad aumentada que convierte cualquier cuarto en un escenario de práctica: audiencias virtuales, retos realistas y un asistente de IA que te dice, discurso a discurso, cómo perder el miedo a hablar en público.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#problema">Ver el problema ↓</a>
+      <a class="btn btn-ghost" href="#idea">Conocer la app</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="num">53.1%</div><div class="lab">se pone muy nervioso al exponer</div></div>
+      <div><div class="num">81.6%</div><div class="lab">olvida lo estudiado en plena presentación</div></div>
+      <div><div class="num">53.1%</div><div class="lab">ha evitado presentar por miedo</div></div>
+      <div><div class="num">95.9%</div><div class="lab">probaría un simulador como este</div></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Desplázate</span><span class="line"></span></div>
+</section>
+
+<main>
+<section id="problema" class="section">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">I</span> El problema</div>
+    <span class="author-chip">Resumen — Adrián · Introducción — Emily</span>
+    <div class="section-head">
+      <h2>El pánico escénico no es falta de carácter. Es un cuello de botella real.</h2>
+      <p class="lede">Muchos estudiantes dominan un tema a la perfección y aun así fallan al exponerlo: la voz tiembla, la mente se queda en blanco y todo el esfuerzo de estudiar parece esfumarse frente al público. Esa ansiedad no es un capricho — es una barrera medible que afecta las notas y, más adelante, el desempeño profesional.</p>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div>
+        <p>Para confirmar que no era una impresión aislada, encuestamos de forma anónima a estudiantes de la Universidad Tecnológica de Panamá. Las respuestas coincidieron con lo que ya sospechábamos por experiencia propia: el miedo a presentar es frecuente, incapacitante y, sobre todo, un problema que casi nadie atiende con herramientas reales.</p>
+        <p>Quienes lo sufren no reciben mucho más que un "atrévete" — un consejo que ignora que, para muchos, el miedo es tan paralizante que ni siquiera intentan presentar. Esa falta de herramientas accesibles es exactamente el vacío que buscamos llenar.</p>
+      </div>
+      <div class="grid-4" style="grid-template-columns:repeat(2,1fr); gap:16px;">
+        <div class="stat-spot"><div class="big">53.1%</div><div class="small">nervios altos al presentar</div></div>
+        <div class="stat-spot"><div class="big">81.6%</div><div class="small">olvida lo estudiado</div></div>
+        <div class="stat-spot"><div class="big">53.1%</div><div class="small">evita presentar por miedo</div></div>
+        <div class="stat-spot"><div class="big">95.9%</div><div class="small">quiere una app así</div></div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:56px;" >
+      <div class="quote-card reveal"><p>Un estudiante contó que, en plena exposición, deja de recordar su guion y termina inventando sobre la marcha.</p><div class="who">Experiencia anónima · Encuesta UTP</div></div>
+      <div class="quote-card reveal"><p>Otro relató que la voz se le corta y la garganta se le cierra justo cuando más necesita sonar seguro.</p><div class="who">Experiencia anónima · Encuesta UTP</div></div>
+      <div class="quote-card reveal"><p>Varios coinciden en algo: no es que no sepan el tema, es que el nerviosismo borra todo lo aprendido en segundos.</p><div class="who">Experiencia anónima · Encuesta UTP</div></div>
+    </div>
+  </div>
+</section>
+<section id="idea" class="section curtain">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">II</span> La idea</div>
+    <span class="author-chip">Marco teórico — Adrián</span>
+    <div class="section-head">
+      <h2>Practicar el miedo, en dosis seguras, hasta que deje de dar miedo.</h2>
+      <p class="lede">La psicología conductual lleva décadas usando la <strong>exposición gradual</strong>: enfrentar poco a poco una situación temida, en un entorno controlado, hasta que el cuerpo aprende que no hay peligro real. La realidad aumentada es, simplemente, la manera más accesible de crear ese entorno controlado hoy en día.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card reveal">
+        <div class="icon">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M4 22c0-5 4-8 7-8s3 3 3 5 1 3 4 3 4-1 4-3-1-5 3-8 7 0 7 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="14" r="3.4" stroke="currentColor" stroke-width="1.6"/><circle cx="21" cy="14" r="3.4" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+        <h3>Audiencias virtuales</h3>
+        <p>Tu propia sala se llena de público generado por AR: tamaños y actitudes distintas, para subir la dificultad a tu ritmo.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M15 4v18M9 26h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 12a7 7 0 0014 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 4a4 4 0 00-4 4v6a4 4 0 008 0V8a4 4 0 00-4-4z" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+        <h3>Retos realistas</h3>
+        <p>Ruido de fondo, distracciones visuales, interrupciones — los mismos factores que descolocan en la vida real, aquí sin consecuencias.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M15 9v6l4 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Retroalimentación al instante</h3>
+        <p>Al terminar cada práctica, una IA entrega un reporte concreto: qué mejorar y cómo, sin esperar a la evaluación real.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:64px; align-items:center;">
+      <div class="reveal">
+        <h3 style="color:var(--paper); font-size:1.4rem;">¿Por qué no ya existe algo así?</h3>
+        <p style="color:var(--muted-light);">El antecedente más cercano a SpeakEase AR es una plataforma de realidad virtual creada por investigadores chilenos para practicar oratoria en un auditorio recreado digitalmente. Sus resultados fueron alentadores: mejor fluidez, más claridad y menos ansiedad tras una sola sesión guiada.</p>
+        <p style="color:var(--muted-light);">Pero ese estudio dependía de gafas Meta Quest 2 y de personal supervisando cada sesión — difícil de escalar en universidades con recursos limitados, y prácticamente inaccesible para uso individual en casa.</p>
+      </div>
+      <div class="card reveal" style="background:rgba(255,255,255,0.04); border-color:var(--line-dark);">
+        <h4 style="font-family:'Manrope'; margin-bottom:16px; color:var(--paper);">Lo que cambia SpeakEase AR</h4>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span style="color:var(--sage); font-family:'Space Mono'; font-size:12px;">01</span>
+            <p style="margin:0; color:var(--muted-light); font-size:0.92rem;">Corre en el celular que ya tienes, con o sin un visor económico — no requiere hardware especializado.</p>
+          </div>
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span style="color:var(--sage); font-family:'Space Mono'; font-size:12px;">02</span>
+            <p style="margin:0; color:var(--muted-light); font-size:0.92rem;">Se practica solo, sin supervisor, tantas veces como haga falta — en casa, en el cuarto, donde te sientas seguro.</p>
+          </div>
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span style="color:var(--sage); font-family:'Space Mono'; font-size:12px;">03</span>
+            <p style="margin:0; color:var(--muted-light); font-size:0.92rem;">La IA mide de forma objetiva fluidez, pausas y contacto visual — no depende solo del ojo de un evaluador humano.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="metodo" class="section">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">III</span> Cómo lo construimos</div>
+    <span class="author-chip">Metodología — Juan</span>
+    <div class="section-head">
+      <h2>De la encuesta a un prototipo funcional, pieza por pieza.</h2>
+      <p class="lede">Empezamos confirmando el problema con datos reales, y de ahí definimos qué tecnología resolvía cada parte del reto: crear el escenario, escuchar al usuario, entenderlo, y guardar su progreso.</p>
+    </div>
+
+    <div class="pipeline reveal">
+      <div class="pipe-step">
+        <div class="icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="4" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10h10M8 14h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <h4>Encuesta</h4>
+        <p>49 estudiantes, Google Forms, para medir el problema real en el campus.</p>
+      </div>
+      <div class="pipe-arrow"><svg width="20" height="14" viewBox="0 0 20 14"><path d="M0 7h18M13 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></div>
+      <div class="pipe-step">
+        <div class="icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 20c0-4 3-6 5-6s2 2 2 4 1 2 3 2 3-1 3-2-1-4 2-4 5 2 5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="12" r="2.6" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="12" r="2.6" stroke="currentColor" stroke-width="1.6"/></svg></div>
+        <h4>Entorno AR</h4>
+        <p>Escenarios y audiencias construidos en Unity, con Vuforia como motor de reconocimiento.</p>
+      </div>
+      <div class="pipe-arrow"><svg width="20" height="14" viewBox="0 0 20 14"><path d="M0 7h18M13 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></div>
+      <div class="pipe-step">
+        <div class="icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="10" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M6 12a7 7 0 0014 0M13 19v4M9 23h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <h4>Detección de voz</h4>
+        <p>Google Cloud Speech-to-Text transcribe el discurso en tiempo real con alta precisión.</p>
+      </div>
+      <div class="pipe-arrow"><svg width="20" height="14" viewBox="0 0 20 14"><path d="M0 7h18M13 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></div>
+      <div class="pipe-step">
+        <div class="icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="13" r="2.6" fill="currentColor"/><path d="M13 4v3M13 19v3M4 13h3M19 13h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <h4>Asistente IA</h4>
+        <p>Modelos de código abierto detectan muletillas y pausas largas, y generan el consejo final.</p>
+      </div>
+      <div class="pipe-arrow"><svg width="20" height="14" viewBox="0 0 20 14"><path d="M0 7h18M13 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></div>
+      <div class="pipe-step">
+        <div class="icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M8 18a5 5 0 01-1-9.9A6 6 0 0118 8a4.5 4.5 0 011 8.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <h4>Almacenamiento</h4>
+        <p>Firebase guarda el progreso de cada estudiante sesión tras sesión.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:64px;">
+      <div class="reveal">
+        <h3>Un visor de cartón o unas Meta Quest — tú eliges</h3>
+        <p>La aplicación funciona con visores económicos de bajo costo, sin sacrificar la experiencia inmersiva. Esto es clave para que cualquier estudiante latinoamericano pueda acceder, sin depender de comprar un equipo de cientos de dólares.</p>
+        <div class="bar-row reveal" style="--pct:9%; margin-top:28px;">
+          <div class="lab"><span>Visor genérico para celular</span><span>$15 – $50</span></div>
+          <div class="bar-track"><div class="bar-fill"></div></div>
+        </div>
+        <div class="bar-row reveal" style="--pct:100%;">
+          <div class="lab"><span>Gafas Meta Quest</span><span>$299 – $599</span></div>
+          <div class="bar-track"><div class="bar-fill"></div></div>
+        </div>
+      </div>
+      <div class="card reveal">
+        <h4 style="margin-bottom:14px;">Caja de herramientas</h4>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">Google Forms</span>
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">Unity</span>
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">Vuforia</span>
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">Google Speech-to-Text</span>
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">Firebase</span>
+          <span style="font-family:'Space Mono'; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:6px 12px;">IA open source</span>
+        </div>
+        <p style="margin-top:18px;">Acceso gratuito para estudiantes que validen su matrícula; suscripción mensual opcional para el público general, para mantener la app sostenible a largo plazo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="resultados" class="section curtain">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">IV</span> Lo que dijeron los estudiantes</div>
+    <span class="author-chip">Resultados — Emily</span>
+    <div class="section-head">
+      <h2>49 respuestas anónimas, un mismo patrón repetido.</h2>
+      <p class="lede">La encuesta se aplicó a estudiantes de distintas carreras de la UTP. Estas son las cifras clave, rediseñadas para leerse de un vistazo.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="reveal">
+        <h4 style="color:var(--paper); font-weight:700; font-size:0.95rem; margin-bottom:22px;">¿Qué tan difíciles se sienten las presentaciones orales?</h4>
+        <div class="bar-row" style="--pct:8.2%"><div class="lab"><span>Muy fáciles</span><span>8.2%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:4.1%"><div class="lab"><span>Fáciles</span><span>4.1%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:44.9%"><div class="lab"><span>Normales</span><span>44.9%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:34.7%"><div class="lab"><span>Difíciles</span><span>34.7%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:8.2%"><div class="lab"><span>Muy difíciles</span><span>8.2%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+      </div>
+      <div class="reveal">
+        <h4 style="color:var(--paper); font-weight:700; font-size:0.95rem; margin-bottom:22px;">¿Qué es lo que más cuesta al presentar?</h4>
+        <div class="bar-row" style="--pct:55.1%"><div class="lab"><span>Controlar los nervios</span><span>55.1%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:51%"><div class="lab"><span>Memorizar el contenido</span><span>51%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:51%"><div class="lab"><span>Mantener contacto visual</span><span>51%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:38.8%"><div class="lab"><span>Hablar frente al público</span><span>38.8%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" style="--pct:26.5%"><div class="lab"><span>Responder preguntas</span><span>26.5%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:60px; align-items:center;">
+      <div class="reveal" style="text-align:center;">
+        <div class="donut-wrap" style="justify-content:center; flex-direction:column;">
+          <svg class="donut" viewBox="0 0 120 120" style="--dash-final:132.5;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="12"/>
+            <circle class="fg" cx="60" cy="60" r="45" fill="none" stroke="var(--coral)" stroke-width="12" stroke-linecap="round" stroke-dasharray="282.7" transform="rotate(-90 60 60)"/>
+          </svg>
+          <p style="margin-top:14px; font-size:0.9rem; color:var(--muted-light);"><strong style="color:var(--paper);">53.1%</strong> ha evitado presentaciones directamente por miedo</p>
+        </div>
+      </div>
+      <div class="reveal" style="text-align:center;">
+        <div class="donut-wrap" style="justify-content:center; flex-direction:column;">
+          <svg class="donut" viewBox="0 0 120 120" style="--dash-final:230.8;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="12"/>
+            <circle class="fg" cx="60" cy="60" r="45" fill="none" stroke="var(--sage)" stroke-width="12" stroke-linecap="round" stroke-dasharray="282.7" transform="rotate(-90 60 60)"/>
+          </svg>
+          <p style="margin-top:14px; font-size:0.9rem; color:var(--muted-light);"><strong style="color:var(--paper);">81.6%</strong> olvida parte de lo estudiado al presentar</p>
+        </div>
+      </div>
+      <div class="reveal" style="text-align:center;">
+        <div class="donut-wrap" style="justify-content:center; flex-direction:column;">
+          <svg class="donut" viewBox="0 0 120 120" style="--dash-final:271.1;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="12"/>
+            <circle class="fg" cx="60" cy="60" r="45" fill="none" stroke="var(--spotlight)" stroke-width="12" stroke-linecap="round" stroke-dasharray="282.7" transform="rotate(-90 60 60)"/>
+          </svg>
+          <p style="margin-top:14px; font-size:0.9rem; color:var(--muted-light);"><strong style="color:var(--paper);">95.9%</strong> cree que un simulador ayudaría a mejorar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="conclusiones" class="section">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">V</span> Lo que aprendimos</div>
+    <span class="author-chip">Conclusiones — Adrián</span>
+    <div class="grid-2">
+      <div class="section-head reveal" style="margin-bottom:0;">
+        <h2>Los datos y la literatura apuntan en la misma dirección.</h2>
+        <p class="lede">Casi todos los encuestados — 95.9% — coinciden en que un simulador como SpeakEase AR les ayudaría a manejar mejor la ansiedad de exponer. Y no es solo percepción: estudios previos sobre realidad virtual aplicada a la ansiedad social muestran mejoras similares, con efectos que se sostienen incluso después de terminada la sesión de práctica.</p>
+        <p>El 55.1% de los encuestados presenta con frecuencia y el 44.9% lo hace de vez en cuando — es decir, el 0% de la población estudiada escapa por completo de tener que exponer alguna vez. Es un problema que tarde o temprano toca a todos.</p>
+      </div>
+      <div class="card reveal">
+        <h3>La limitación que reconocemos</h3>
+        <p>Encuestamos a 49 estudiantes de una sola universidad. Es una muestra pequeña frente al total de la población universitaria — pero todos forman parte, precisamente, del grupo que buscamos ayudar, lo que mantiene el valor de los datos recogidos.</p>
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--line);">
+          <p style="margin:0; font-size:0.9rem;"><strong>En una frase:</strong> SpeakEase AR no reemplaza la práctica real frente a un público — la vuelve un ensayo seguro, repetible y accesible antes del día que sí cuenta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="recomendaciones" class="section curtain">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">VI</span> Lo que sigue</div>
+    <span class="author-chip">Recomendaciones — Juan</span>
+    <div class="section-head">
+      <h2>Cuatro caminos para llevar esta propuesta más lejos.</h2>
+      <p class="lede">SpeakEase AR nace como una propuesta de investigación, no como un producto terminado. Estas son las líneas que consideramos más valiosas para seguir desarrollándola.</p>
+    </div>
+    <div class="grid-4">
+      <div class="card reveal">
+        <h3 style="font-size:1.02rem;">IA más personalizada</h3>
+        <p>Modelos que adapten su retroalimentación según el estudiante y la materia, probados en más universidades y con más participantes.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="font-size:1.02rem;">Más allá del aula</h3>
+        <p>Explorar su uso fuera del ámbito educativo, con soporte multilingüe y modos de accesibilidad para distintas condiciones visuales o auditivas.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="font-size:1.02rem;">Efecto a largo plazo</h3>
+        <p>Repetir el estudio con el tiempo para saber si los beneficios se mantienen o si se necesita practicar de forma periódica.</p>
+      </div>
+      <div class="card reveal">
+        <h3 style="font-size:1.02rem;">Celular vs. gafas RV</h3>
+        <p>Comparar a fondo si el dispositivo usado cambia el resultado pedagógico o el nivel de cansancio durante la práctica.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="equipo" class="section">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">VII</span> Organización del grupo</div>
+    <div class="section-head">
+      <h2>Quién escribió cada parte de esta investigación.</h2>
+      <p class="lede">El trabajo se dividió por secciones del artículo, según fortalezas e intereses de cada integrante.</p>
+    </div>
+    <div class="grid-3">
+      <div class="team-card reveal">
+        <div class="team-avatar">AR</div>
+        <div>
+          <h3 style="font-size:1.1rem; margin-bottom:6px;">Adrián Rosales</h3>
+          <div class="team-role">Resumen · Marco teórico · Conclusiones</div>
+        </div>
+        <p>Encargado de anclar la propuesta en la literatura académica y de cerrar el argumento con las conclusiones del estudio.</p>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">EE</div>
+        <div>
+          <h3 style="font-size:1.1rem; margin-bottom:6px;">Emily Escobar</h3>
+          <div class="team-role">Introducción · Resultados</div>
+        </div>
+        <p>Planteó el problema desde su propia experiencia y tradujo los datos de la encuesta en hallazgos claros.</p>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">JJ</div>
+        <div>
+          <h3 style="font-size:1.1rem; margin-bottom:6px;">Juan Jaramillo</h3>
+          <div class="team-role">Metodología · Recomendaciones</div>
+        </div>
+        <p>Definió cómo se construiría la aplicación y trazó el camino para llevar la idea más allá de este proyecto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="consideraciones" class="section dark">
+  <div class="wrap">
+    <div class="act-tag"><span class="num">✦</span> Telón final</div>
+    <div class="section-head">
+      <h2 style="color:var(--paper);">Consideraciones finales</h2>
+      <p class="lede">Lo que cada integrante se lleva de este proyecto, en sus propias palabras.</p>
+    </div>
+    <div class="grid-3">
+      <div class="final-card reveal">
+        <span class="team-role">Adrián Rosales</span>
+        <p>Este proyecto me ayudó a comprender mejor cómo funciona la investigación real, la redacción y la confección de una propuesta en formato de artículo científico — una experiencia valiosa para mi desarrollo personal.</p>
+        <p>Considero que proyectos de esta naturaleza son perfectos para la materia, ya que reúnen gran parte de los fundamentos estudiados durante el semestre, siendo necesario aplicarlos todos para considerarlo un éxito.</p>
+      </div>
+      <div class="final-card reveal">
+        <span class="team-role">Emily Escobar</span>
+        <p>Fui quien planteó la problemática a partir de experiencias personales, así que me alegró mucho encontrarle por fin una solución a algo que siempre me ha causado tantos problemas en mi vida. Además, aprendí muchísimo sobre IA y realidad virtual que antes desconocía.</p>
+        <p>Hacer este proyecto fue una experiencia enriquecedora. Espero algún día poder hacerlo realidad, porque estoy segura de que mejoraría la calidad de vida de miles de personas.</p>
+      </div>
+      <div class="final-card reveal">
+        <span class="team-role">Juan Jaramillo</span>
+        <p>Disfruté mucho este proyecto al darme cuenta de lo necesaria que es esta ayuda para quienes sufren pánico escénico, y de que no fuimos los únicos buscando una solución parecida a la nuestra.</p>
+        <p>Espero en un futuro poder volverla realidad y no dejarla en el olvido.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div style="max-width:340px;">
+        <h4>SpeakEase AR</h4>
+        <p style="font-size:0.88rem; color:var(--muted-light);">Una propuesta de investigación de la Facultad de Ingeniería de Sistemas Computacionales, Universidad Tecnológica de Panamá, Sede Veraguas.</p>
+      </div>
+      <div>
+        <h4>Fuentes consultadas</h4>
+        <div class="footer-refs">
+          Espinoza Bravo et al., "La realidad virtual para simulaciones educativas," Revista InveCom, 2025 · Borja Mora et al., Revista InveCom, 2025 · García Rivera &amp; Céspedes Guevara, Ciencia Latina, 2025 · Pinargote Castro et al., Ciencia Latina, 2024 · Sandoval et al., "Designing a Virtual Reality Platform for University Students," Education Sciences, 2025 · Top Doctors, técnicas de exposición gradual · Takac et al., PLOS ONE, 2019 · Hinojo-Lucena et al., Journal of Personalized Medicine, 2020 · Simon, Unity y Vuforia, 2023 · Xu et al., benchmarking Speech-to-Text, 2021 · Mateo et al., CSEDU, 2024.
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Basado en el artículo "Entrenamiento de oratoria en realidad aumentada con retroalimentación inteligente."</span>
+      <span>UTP · Sede Veraguas · 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var hero = document.querySelector('.hero');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var supportsHover = window.matchMedia('(hover: hover)').matches;
+
+  if(hero && supportsHover && !reduceMotion){
+    hero.addEventListener('mousemove', function(e){
+      var r = hero.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width) * 100;
+      var y = ((e.clientY - r.top) / r.height) * 100;
+      hero.style.setProperty('--mx', x + '%');
+      hero.style.setProperty('--my', y + '%');
+    });
+  } else if(hero) {
+    // gentle ambient drift for touch devices / reduced motion
+    hero.style.setProperty('--mx', '50%');
+    hero.style.setProperty('--my', '26%');
+  }
+
+  var targets = document.querySelectorAll('.reveal, .bar-row');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    targets.forEach(function(t){ io.observe(t); });
+  } else {
+    targets.forEach(function(t){ t.classList.add('in-view'); });
+  }
+})();
+</script>
+</body>
+</html>
